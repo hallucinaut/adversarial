@@ -68,7 +68,7 @@ Examples:
   adversarial detect image.png
   adversarial defend image.png
   adversarial analyze model_output.txt
-`, "adversarial")
+`)
 }
 
 func detectInput(filepath string) {

@@ -147,7 +147,7 @@ func (d *Detector) calculateEntropy(input []byte) float64 {
 	entropy := 0.0
 	total := float64(len(input))
 	for _, count := range counts {
-		p := count / total
+		p := float64(count) / total
 		if p > 0 {
 			entropy -= p * math.Log2(p)
 		}
@@ -219,16 +219,16 @@ func (d *Detector) calculateAnomalyScore(f Feature) float64 {
 		"noise_level":       {0.0, 0.2},
 	}
 
-	range, exists := expectedRanges[f.Name]
+	expectedRange, exists := expectedRanges[f.Name]
 	if !exists {
 		return 0.5
 	}
 
 	// Calculate how far outside the range the value is
-	if f.Value < range.min {
-		return (range.min - f.Value) / range.min * 2
-	} else if f.Value > range.max {
-		return (f.Value - range.max) / range.max * 2
+	if f.Value < expectedRange.min {
+		return (expectedRange.min - f.Value) / expectedRange.min * 2
+	} else if f.Value > expectedRange.max {
+		return (f.Value - expectedRange.max) / expectedRange.max * 2
 	}
 
 	return 0.0

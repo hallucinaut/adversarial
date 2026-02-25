@@ -44,7 +44,7 @@ func (d *Defender) Defend(input []byte, strategy string) *DefenseResult {
 	for _, strat := range d.strategies {
 		if strat.Name == strategy {
 			// Apply defense
-			defended := d.applyDefense(input, strat)
+			_ = d.applyDefense(input, strat)
 			return &DefenseResult{
 				Success:      true,
 				DefenseUsed:  strat.Name,
