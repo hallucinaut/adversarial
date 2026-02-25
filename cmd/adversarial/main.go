@@ -87,6 +87,7 @@ func detectInput(filepath string) {
 	if result.IsAdversarial {
 		fmt.Println("⚠️  ADVERSARIAL EXAMPLE DETECTED")
 		fmt.Println("Recommendation: Apply defense before processing")
+		os.Exit(1)
 	} else {
 		fmt.Println("✓ Input appears clean")
 	}

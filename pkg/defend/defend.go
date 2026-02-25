@@ -2,6 +2,7 @@
 package defend
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -180,10 +181,10 @@ func GenerateDefenseReport(result *DefenseResult) string {
 	var report string
 
 	report += "=== Defense Report ===\n\n"
-	report += "Success: " + boolToString(result.Success) + "\n"
-	report += "Defense Used: " + result.DefenseUsed + "\n"
-	report += "Effectiveness: " + string(rune(int(result.ImprovedScore*100)+48)) + "%\n"
-	report += "Performance Cost: " + string(rune(int(result.Cost*100)+48)) + "%\n"
+	report += fmt.Sprintf("Success: %v\n", result.Success)
+	report += fmt.Sprintf("Defense Used: %s\n", result.DefenseUsed)
+	report += fmt.Sprintf("Effectiveness: %.0f%%\n", result.ImprovedScore*100)
+	report += fmt.Sprintf("Performance Cost: %.0f%%\n", result.Cost*100)
 
 	return report
 }

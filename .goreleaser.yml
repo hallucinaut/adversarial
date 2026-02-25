@@ -1,0 +1,55 @@
+# GoReleaser configuration for building binaries
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+builds:
+  - id: adversarial
+    main: ./cmd/adversarial
+    binary: adversarial
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+      - "386"
+
+archives:
+  - id: adversarial
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+
+release:
+  prerelease: auto
+  draft: true

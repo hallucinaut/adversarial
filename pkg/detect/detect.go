@@ -2,6 +2,8 @@
 package detect
 
 import (
+	"context"
+	"fmt"
 	"math"
 )
 
@@ -65,8 +67,44 @@ func NewDetector() *Detector {
 
 // Detect analyzes input for adversarial characteristics.
 func (d *Detector) Detect(input []byte) *DetectionResult {
+	return d.DetectWithContext(context.Background(), input)
+}
+
+// DetectWithContext analyzes input for adversarial characteristics with context support.
+func (d *Detector) DetectWithContext(ctx context.Context, input []byte) *DetectionResult {
 	result := &DetectionResult{
 		Method: "ensemble",
+	}
+
+	// Validate input
+	if input == nil {
+		return &DetectionResult{
+			IsAdversarial: false,
+			Score:         0.0,
+			Method:        "empty_input",
+			Patterns:      nil,
+		}
+	}
+
+	if len(input) == 0 {
+		return &DetectionResult{
+			IsAdversarial: false,
+			Score:         0.0,
+			Method:        "empty_input",
+			Patterns:      nil,
+		}
+	}
+
+	// Check context cancellation
+	select {
+	case <-ctx.Done():
+		return &DetectionResult{
+			IsAdversarial: false,
+			Score:         0.0,
+			Method:        "cancelled",
+			Patterns:      nil,
+		}
+	default:
 	}
 
 	features := d.extractFeatures(input)
@@ -353,17 +391,17 @@ func GenerateReport(result *DetectionResult) string {
 	var report string
 
 	report += "=== Adversarial Detection Report ===\n\n"
-	report += "Is Adversarial: " + boolToString(result.IsAdversarial) + "\n"
-	report += "Confidence Score: " + string(rune(int(result.Score*100)+48)) + "%\n"
-	report += "Detection Method: " + result.Method + "\n\n"
+	report += fmt.Sprintf("Is Adversarial: %v\n", result.IsAdversarial)
+	report += fmt.Sprintf("Confidence Score: %.0f%%\n", result.Score*100)
+	report += fmt.Sprintf("Detection Method: %s\n\n", result.Method)
 
 	if len(result.Patterns) > 0 {
 		report += "Detected Patterns:\n"
 		for i, pattern := range result.Patterns {
-			report += "[" + string(rune(i+49)) + "] " + pattern.Type + "\n"
-			report += "    Severity: " + pattern.Severity + "\n"
-			report += "    Confidence: " + string(rune(int(pattern.Confidence*100)+48)) + "%\n"
-			report += "    Recommendation: " + pattern.Recommendation + "\n\n"
+			report += fmt.Sprintf("[%d] %s\n", i+1, pattern.Type)
+			report += fmt.Sprintf("    Severity: %s\n", pattern.Severity)
+			report += fmt.Sprintf("    Confidence: %.0f%%\n", pattern.Confidence*100)
+			report += fmt.Sprintf("    Recommendation: %s\n\n", pattern.Recommendation)
 		}
 	}
 
